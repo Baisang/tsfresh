@@ -310,8 +310,20 @@ class FeatureCalculationTestCase(TestCase):
         self.assertIsNanOnAllArrayTypes(ratio_value_number_to_time_series_length, [])
 
     def test_fft_coefficient(self):
-        pass
-        # todo: add unit test
+
+        param = [{"coeff": 0}, {"coeff": 1}, {"coeff": 2}, {"coeff": 4}]
+        expected_index = ['coeff_0', 'coeff_1', 'coeff_2', 'coeff_4']
+
+        i = np.linspace(-np.pi, np.pi, num=50)
+        base_period = np.pi
+        x = np.append(i/np.pi, i/np.pi) + np.random.normal(0, 0.01, size=100)
+
+        res = pd.Series(dict(fft_coefficient(x=x, param=param)))
+        six.assertCountEqual(self, list(res.index), expected_index)
+        self.assertAlmostEqual(res['coeff_0'], -4, places=1)
+        self.assertAlmostEqual(res['coeff_1'], 0, places=2)
+        self.assertAlmostEqual(res['coeff_2'], 0, places=2)
+        self.assertAlmostEqual(res['coeff_4'], 0, places=2)
 
     def test_number_peaks(self):
         x = np.array([0, 1, 2, 1, 0, 1, 2, 3, 4, 5, 4, 3, 2, 1])
@@ -600,7 +612,6 @@ class FeatureCalculationTestCase(TestCase):
         param = [{"attr": "pvalue"}, {"attr": "rvalue"}, {"attr": "intercept"}, {"attr": "slope"}, {"attr": "stderr"}]
         res = linear_trend(x, param)
 
-        
         res = pd.Series(dict(res))
 
         expected_index = ["attr_\"pvalue\"", "attr_\"intercept\"",
